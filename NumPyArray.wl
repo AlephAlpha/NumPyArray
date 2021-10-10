@@ -17,8 +17,8 @@ ReadNumPyArray::fortranOrder = "Fortran order is not supported"
 
 Begin["Private`"]
 
-ReadNumPyArray[file_] := Module[{fs, formatVersion, headerLength, data, pyType,
-   fortranOrder, shape, dtype, headerDic, header, byteOrder, retVal},
+ReadNumPyArray[file_] := Module[{fs, formatVersion, headerLength, data, fortranOrder,
+   pyType, mathematicaDataType, shape, dtype, headerDic, header, byteOrder, retVal},
    fs = OpenRead[file, BinaryFormat -> True];
    If[fs === $Failed, fs,
    
@@ -94,14 +94,14 @@ ParseDic[dicString_] := Module[{table},
        "('.*?(?<!\\\\)')\\s*:\\s*('.*?(?<!\\\\)'|True|False|\\((?:\\d+\
 ,?\\s*)*\\)|\\d+)"] -> {"$1", "$2"}];
    table = 
-    MapAt[If[StringMatchQ[#, "'" ~~ __ ~~ "'"], 
+    MapAt[If[StringMatchQ[#, "'" ~~ ___ ~~ "'"], 
        StringReplace[StringTake[#, {2, -2}], "\\'" -> "'"], #] &, 
      table, {All, All}];
    table = 
     MapAt[If[# == "True" || # == "False", ToExpression[#], #] &, 
      table, {All, All}];
    table = 
-    MapAt[If[StringQ[#] && StringMatchQ[#, "(" ~~ __ ~~ ")"], 
+    MapAt[If[StringQ[#] && StringMatchQ[#, "(" ~~ ___ ~~ ")"], 
        ToExpression[
         StringReplace[
          StringReplace[#, 
